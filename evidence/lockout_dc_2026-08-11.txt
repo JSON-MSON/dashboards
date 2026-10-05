@@ -1,0 +1,24 @@
+# The Samba DC's records for the targeted account on August 11, 2026, read on October 2, 2026.
+
+# 1. The Samba DC's journal, 14:00-16:00 UTC on August 11 (lines naming the account or a lock):
+$ sudo journalctl --since "2026-08-11 14:00:00" --until "2026-08-11 16:00:00" --no-pager -o short-iso-precise | grep -i -E "jsmith|lockout|locked|NT_STATUS|bad password" | head -60
+2026-08-11T14:23:06.655106+00:00 samba-dc snapd[1394]: autorepair.go:177: WARNING: the system booted with an old initrd without unlocked status reporting
+2026-08-11T14:25:31.461306+00:00 samba-dc sudo[2198]: dcadmin : TTY=/dev/pts/0 ; PWD=/home/dcadmin ; USER=root ; COMMAND=/usr/bin/samba-tool user show jsmith
+2026-08-11T14:28:27.077631+00:00 samba-dc sudo[2217]: dcadmin : TTY=/dev/pts/0 ; PWD=/home/dcadmin ; USER=root ; COMMAND=/usr/bin/samba-tool user show jsmith
+2026-08-11T15:12:01.015782+00:00 samba-dc sudo[2472]: dcadmin : TTY=/dev/pts/0 ; PWD=/home/dcadmin ; USER=root ; COMMAND=/usr/bin/samba-tool user show jsmith
+2026-08-11T15:19:55.808814+00:00 samba-dc sudo[2504]: dcadmin : TTY=/dev/pts/0 ; PWD=/home/dcadmin ; USER=root ; COMMAND=/usr/bin/samba-tool user unlock jsmith
+2026-08-11T15:19:56.000698+00:00 samba-dc sudo[2513]: dcadmin : TTY=/dev/pts/0 ; PWD=/home/dcadmin ; USER=root ; COMMAND=/usr/bin/samba-tool user show jsmith
+
+# 2. The account's stored attributes, read October 2, 2026: lockoutTime 0 (not locked; the unlock ran at 15:19:55, above);
+#    badPasswordTime still holds its August 11 value.
+$ sudo samba-tool user show jsmith --attributes=badPwdCount,badPasswordTime,lockoutTime,logonCount,lastLogon; date -u
+dn: CN=jsmith,OU=IT,DC=example,DC=test
+lastLogon: 134303417539959720
+logonCount: 3
+badPasswordTime: 134309345686512240
+lockoutTime: 0
+badPwdCount: 0
+
+Fri Oct  2 06:21:46 AM UTC 2026
+
+# badPasswordTime 134309345686512240 = 2026-08-11 15:09:28.6512240 UTC (computed: 100-nanosecond intervals since January 1, 1601).

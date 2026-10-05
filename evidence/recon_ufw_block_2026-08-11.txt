@@ -1,0 +1,11 @@
+# Ubuntu Server's firewall blocks of traffic from Kali Linux between 14:10 and 14:30 UTC on August 11, 2026:
+# the first and last block line, then the number of block lines logged in that window.
+# Run as root on Ubuntu Server, October 2, 2026 (inside one sudo bash -c; the SSH session and password prompts are not shown):
+#   echo == scan start Aug 11
+#   journalctl _TRANSPORT=kernel --since "2026-08-11 14:10:00" --until "2026-08-11 14:30:00" --no-pager -o short-iso-precise | grep "UFW BLOCK" | grep "SRC=198.51.100.128" | sed -n "1p;\$p"
+#   journalctl _TRANSPORT=kernel --since "2026-08-11 14:10:00" --until "2026-08-11 14:30:00" --no-pager | grep "UFW BLOCK" | grep -c "SRC=198.51.100.128"
+
+== scan start Aug 11
+2026-08-11T14:18:17.550913+00:00 ubuntu-target kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=00:00:5e:00:53:02:00:00:5e:00:53:03:08:00 SRC=198.51.100.128 DST=198.51.100.130 LEN=44 TOS=0x00 PREC=0x00 TTL=43 ID=30118 PROTO=TCP SPT=59451 DPT=80 WINDOW=1024 RES=0x00 SYN URGP=0 
+2026-08-11T14:18:17.554055+00:00 ubuntu-target kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=00:00:5e:00:53:02:00:00:5e:00:53:03:08:00 SRC=198.51.100.128 DST=198.51.100.130 LEN=44 TOS=0x00 PREC=0x00 TTL=53 ID=64842 PROTO=TCP SPT=59451 DPT=8888 WINDOW=1024 RES=0x00 SYN URGP=0 
+10

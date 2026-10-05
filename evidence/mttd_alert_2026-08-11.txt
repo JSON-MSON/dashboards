@@ -1,0 +1,32 @@
+# The first rule 100010 alert at or after 14:50:57 on August 11, 2026, read from the manager's archived alert log on October 2, 2026.
+# MTTD: 14:50:57.457 (the alert) minus 14:50:53.060322 (the earliest failed-password line in its previous_output) = 4.397 seconds (computed).
+
+# Script run as root on Ubuntu Server (the lines that produce this output; '…' marks lines that print other checks):
+cat > /tmp/hl01_alerts.py <<'PY'
+import json, sys
+def rd(p):
+    with open(p, errors="replace") as f:
+        for l in f:
+            try: yield json.loads(l)
+            except Exception: pass
+A = "/var/ossec/logs/alerts/2026/"
+…
+print("\n## Aug 11 first rule 100010 alert at or after 14:50:57")
+for a in rd(A + "Aug/ossec-alerts-11.json"):
+    if a["rule"]["id"] == "100010" and a["timestamp"][:19] >= "2026-08-11T14:50:57":
+        print(a["timestamp"], "firedtimes", a["rule"].get("firedtimes"), "location", a.get("location"))
+        print("full_log:", a.get("full_log"))
+        print("previous_output:"); print(a.get("previous_output", ""))
+        break
+…
+PY
+$ sudo python3 /tmp/hl01_alerts.py
+
+# Output:
+## Aug 11 first rule 100010 alert at or after 14:50:57
+2026-08-11T14:50:57.457+0000 firedtimes 101 location journald
+full_log: Aug 11 14:50:56 ubuntu-target sshd-session[5392]: Failed password for jsmith from 198.51.100.128 port 50832 ssh2
+previous_output:
+2026-08-11T14:50:56.032037+00:00 ubuntu-target sshd-session[5392]: Failed password for jsmith from 198.51.100.128 port 50832 ssh2
+Aug 11 14:50:53 ubuntu-target sshd-session[5392]: Failed password for jsmith from 198.51.100.128 port 50832 ssh2
+2026-08-11T14:50:53.060322+00:00 ubuntu-target sshd-session[5392]: Failed password for jsmith from 198.51.100.128 port 50832 ssh2

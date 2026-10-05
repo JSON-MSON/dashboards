@@ -1,0 +1,23 @@
+# The firewall fix on Ubuntu Server, August 11, 2026.
+
+# 1. Commands run with sudo on Ubuntu Server that day, from its journal, read October 2, 2026 ('…' marks earlier commands, not ufw):
+$ sudo journalctl _COMM=sudo --since "2026-08-11 00:00:00" --until "2026-08-11 15:30:00" --no-pager -o short-iso-precise | grep "COMMAND=" | sed -E "s/^([^ ]+) .*COMMAND=/\1 /"
+…
+2026-08-11T15:20:10.769119+00:00 /usr/sbin/ufw deny from 198.51.100.128 to any port 22
+2026-08-11T15:20:10.875292+00:00 /usr/sbin/ufw status numbered
+2026-08-11T15:21:29.022088+00:00 /usr/sbin/ufw delete 3
+2026-08-11T15:21:47.322069+00:00 /usr/sbin/ufw insert 1 deny from 198.51.100.128 to any port 22
+2026-08-11T15:21:47.396859+00:00 /usr/sbin/ufw status numbered
+2026-08-11T15:22:32.726927+00:00 /usr/sbin/ufw show added
+
+# 2. The rule order on October 2, 2026:
+$ sudo ufw status numbered
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22                         DENY IN     198.51.100.128            
+[ 2] 22/tcp                     ALLOW IN    Anywhere                  
+[ 3] 443/tcp                    ALLOW IN    Anywhere                  
+[ 4] 22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 5] 443/tcp (v6)               ALLOW IN    Anywhere (v6)             

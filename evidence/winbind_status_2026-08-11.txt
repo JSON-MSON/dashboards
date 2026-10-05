@@ -1,0 +1,20 @@
+# How winbind on Ubuntu Server answered failed logons for the targeted account on August 11, 2026 (UTC), read from the system journal on October 2, 2026.
+
+# 1. Consecutive runs of the same answer: first time, last time, count, status.
+#    Command not saved with the output.
+#    The 14:17:08 row is a winbind message that carries no logon status.
+2026-08-11T14:17:08.401189+00:00 2026-08-11T14:17:08.401189+00:00 1 --
+2026-08-11T14:20:30.431964+00:00 2026-08-11T14:21:57.523633+00:00 88 NT_STATUS_NO_SUCH_USER
+2026-08-11T14:38:54.878301+00:00 2026-08-11T14:38:56.864307+00:00 5 NT_STATUS_LOGON_FAILURE
+2026-08-11T14:38:56.868020+00:00 2026-08-11T14:53:56.431641+00:00 178 NT_STATUS_ACCOUNT_LOCKED_OUT
+2026-08-11T14:54:00.382444+00:00 2026-08-11T14:54:16.120447+00:00 5 NT_STATUS_LOGON_FAILURE
+2026-08-11T14:54:20.004196+00:00 2026-08-11T15:09:14.849021+00:00 300 NT_STATUS_ACCOUNT_LOCKED_OUT
+2026-08-11T15:09:18.811290+00:00 2026-08-11T15:09:28.660405+00:00 5 NT_STATUS_LOGON_FAILURE
+2026-08-11T15:09:30.599446+00:00 2026-08-11T15:10:15.807421+00:00 14 NT_STATUS_ACCOUNT_LOCKED_OUT
+
+# 2. Totals per status, with first and last time.
+$ sudo journalctl --since "2026-08-11 00:00:00" --until "2026-08-11 15:30:00" --no-pager -o short-iso-precise | grep -o -E "^[^ ]+|NTSTATUS: NT_STATUS_[A-Z_]+" | awk "/^2026/{t=\$0;next}{s=\$2;c[s]++;if(!(s in f))f[s]=t;l[s]=t}END{for(s in c)print s,c[s],\"first=\"f[s],\"last=\"l[s]}" | sort -k3
+NT_STATUS_NO_SUCH_USER 88 first=2026-08-11T14:20:30.431964+00:00 last=2026-08-11T14:21:57.523633+00:00
+NT_STATUS_LOGON_FAILURE 15 first=2026-08-11T14:38:54.878301+00:00 last=2026-08-11T15:09:28.660405+00:00
+NT_STATUS_ACCOUNT_LOCKED_OUT 492 first=2026-08-11T14:38:56.868020+00:00 last=2026-08-11T15:10:15.807421+00:00
+ 1 first=2026-08-11T14:17:08.401189+00:00 last=2026-08-11T14:17:08.401189+00:00
